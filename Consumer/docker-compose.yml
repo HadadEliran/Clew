@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  db:
+    image: mysql:5.7
+    container_name: hospital_db
+    
+    # The server may be crashed and we want persistant connection.
+    restart: always
+
+    # Change the default port for preventing conflicts with local mysql server.
+    ports:
+      - 4000:3306
+    environment:
+      MYSQL_DATABASE: hospital
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+    volumes: 
+      - ./db_data:/docker-entrypoint-initdb.d
+  consumer:
+    build: .
+    container_name: consumer
+    command: bash /scripts/start_django_app.bash
+    ports:
+      - 8000:8000
+    
+      # We set here the superuser's credentials for avoiding asking them in the "createsuperuser" command.
+    environment:
+      DJANGO_SUPERUSER_USERNAME: admin
+      DJANGO_SUPERUSER_PASSWORD: admin
+      DJANGO_SUPERUSER_EMAIL: admin@admin.com
