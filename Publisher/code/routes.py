@@ -1,21 +1,47 @@
+from datetime import datetime
+import logging
 from flask import Blueprint, request
 from flask.wrappers import Response
 
 blueprint = Blueprint("routes", "__main__")
 
-@blueprint.route("/start_period", methods=["PUT"])
-def start_period():
+# TODO This logic can be replaced with more advanced technology like "Swagger"
+def validate_request()-> Response:
+    """
+        Validate the request is OK. 
+        This means all fields are provided and the "action_activation_date" is in format of "%d-%m-%Y"
+    """
+
     data = request.get_json()
 
-    medication = data["medication"]
-    patient = data["patient"]
-    event_time = data["event_time"]
+    for field in ["medication_name", "patient_id", "action_activation_date"]:
+       if data.get(field) is None:
+           return Response(f"'{field}'' has not been provided", status=400)
+    
+    try:
+        datetime.strptime(data["action_activation_date"], "%d-%m-%Y")
+        return Response(status=200)
+    except:
+        return Response(f"Illegal format of 'action_activation_date'", status=400)
 
-    print(f"{medication}, {patient}, {event_time}")
+@blueprint.route("/start_period", methods=["PUT"])
+def start_period():
+    response = validate_request()
+    
+    if response.status == 200:
+        data = request.get_json()
 
-    return Response(status=200)
+        medication = data["medication_name"]
+        patient = data["patient_id"]
+        event_time = data["action_activation_date"]
 
-    # Publish the event via the queue  
+        # TODO: Publish the event via the queue  
+        logging.info("Publishing the event...")
+        response = Response(status=200)
+
+
+    return response
+
 
 @blueprint.route("/stop_period", methods=["PUT"])
 def stop_period():
