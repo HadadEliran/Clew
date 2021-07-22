@@ -32,7 +32,7 @@ class PeriodCalculator:
         """
 
         periods = []
-        starts, stops = self.create_positions(actions)
+        starts, stops = self.__create_positions(actions)
 
         # If there aren't positions - there aren't periods
         if len(starts) != 0:
@@ -46,19 +46,17 @@ class PeriodCalculator:
 
         return periods
 
-    def create_positions(self, actions: List[Action])-> Tuple:
+    def __create_positions(self, actions: List[Action])-> Tuple:
         """
             This method gets all actions and creates the positions of "starts" and "stops" according 
             the assumptions above.
             It returns a pair of positions - ("starts", "stops")
-
-            This method should not be invoked directly and its permission is "publish" only for testing.
         """
         starts, stops = [], []
 
         # Iterate over the actions and create the "start" and "stop" positions according them
         for index in range(0, len(actions)):
-            self.create_positions_according_action(starts, stops, actions, index)
+            self.__create_positions_according_action(starts, stops, actions, index)
             
         # "start" is not allowed to be the last action.
         if last(starts) != None and (last(stops) == None or last(stops) < last(starts)):
@@ -66,7 +64,7 @@ class PeriodCalculator:
 
         return starts, stops
 
-    def create_positions_according_action(self, starts, stops, actions, action_index):
+    def __create_positions_according_action(self, starts, stops, actions, action_index):
         action = actions[action_index]
 
         if action.is_stop():

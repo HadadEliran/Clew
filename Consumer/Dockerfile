@@ -1,7 +1,7 @@
 FROM python:3.9.6-slim-buster
 
-# Install required library libmysqlclient 
-# (and build-essential for building mysqlclient python extension)
+# By default, "mysql client" isn't part from the "slim" image.
+# Therefore, we should install the required library - "libmysqlclient"
 RUN set -eux && \
     export DEBIAN_FRONTEND=noninteractive && \
     apt-get update && \
