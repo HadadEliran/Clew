@@ -46,6 +46,58 @@ class PeriodCalculator:
 
         return periods
 
+    def calculate2(self, actions: List[Action]) -> List[Period]:
+        cleaned_actions: List[Action] = []
+
+        for action in actions:
+            if action.is_start():
+                # Wern't actions or the last action was stop - append the action
+                if len(cleaned_actions) == 0 or last(cleaned_actions).is_stop():
+                    cleaned_actions.append(action)
+                # The last action was start - remove it and take this action (latest choice)
+                else:
+                    cleaned_actions.pop()
+                    cleaned_actions.append(action)
+            elif action.is_stop():
+                # The first action must be "start"
+                if len(cleaned_actions) == 0:
+                    pass
+                # The last action is start - append the action
+                elif last(cleaned_actions).is_start():
+                    cleaned_actions.append(action)
+                # The last action is stop - remove it and take this action (latest choice)
+                else:
+                    cleaned_actions.pop()
+                    cleaned_actions.append(action)
+            elif action.is_cancel_start():
+                # The last action is start - remove it. If last is stop- do nothing.
+                if len(cleaned_actions) != 0 and last(cleaned_actions).is_start():
+                    cleaned_actions.pop()
+            elif action.is_cancel_stop():
+                # The last action is stop - remove it. If last is start- do nothing.
+                if len(cleaned_actions) != 0 and last(cleaned_actions).is_stop():
+                    cleaned_actions.pop()
+
+        # In the case the last action is start - we should remove it because the last 
+        # must be stop
+        if len(cleaned_actions) != 0 and last(cleaned_actions).is_start():
+            cleaned_actions.pop()
+
+        # "cleaned_actions" consists from pairs of "start" and "stop". 
+        # Therefore, we are going to iterate over it create the periods from the pairs
+        periods = []
+        index = 0
+        while index < len(cleaned_actions):
+            start_action = cleaned_actions[index]
+            stop_action = cleaned_actions[index + 1]
+
+            periods.append(Period(start_action.date, stop_action.date))
+            index += 2
+
+        return periods
+
+
+
     def __create_positions(self, actions: List[Action])-> Tuple:
         """
             This method gets all actions and creates the positions of "starts" and "stops" according 
