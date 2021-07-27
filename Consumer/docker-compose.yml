@@ -19,7 +19,9 @@ services:
     volumes: 
       - ./db_data:/docker-entrypoint-initdb.d
   consumer:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: consumer
     command: bash /scripts/start_django_app.bash
     ports:
